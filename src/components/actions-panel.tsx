@@ -4,39 +4,38 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Users, Phone, Loader2, Send, Bot } from 'lucide-react';
+import { Users, Phone, Mail, Loader2, Send, Bot, RefreshCw } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import type { GenerateEmergencyAlertMessageOutput } from '@/ai/flows/generate-emergency-alert';
 import { generateAlert } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Toaster } from './ui/toaster';
+import { useCrash } from '@/context/CrashContext';
+import type { Contact } from '@/lib/types';
 
-const initialContacts = [
-    { name: 'Jane Doe', phone: '555-0101', relation: 'Spouse' },
-    { name: 'John Smith', phone: '555-0102', relation: 'Father' },
+
+const initialContacts: Contact[] = [
+    { name: 'Jane Doe', phone: '555-0101', email: 'jane.doe@email.com', relation: 'Spouse' },
+    { name: 'John Smith', phone: '555-0102', email: 'john.smith@email.com', relation: 'Father' },
     { name: 'Emergency Services', phone: '911', relation: 'Official' },
 ];
 
-const MOCK_CRASH_DATA = {
-  location: "123 Collision Course, Metro City, 12345",
-  severity: "High",
-  speed: 120,
-};
-
 export function ActionsPanel() {
-    const [contacts] = useState(initialContacts);
+    const { crashData, simulateNewCrash } = useCrash();
+    const [contacts] = useState<Contact[]>(initialContacts);
     const [alertResult, setAlertResult] = useState<GenerateEmergencyAlertMessageOutput | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [isSimulating, setIsSimulating] = useState(false);
     const { toast } = useToast();
 
     const handleGenerateAlert = async () => {
-        setIsLoading(true);
+        setIsGenerating(true);
         setAlertResult(null);
         try {
             const result = await generateAlert({
-                ...MOCK_CRASH_DATA,
-                contacts: contacts.map(c => c.name),
+                ...crashData,
+                contacts: contacts,
             });
             setAlertResult(result);
             toast({
@@ -51,7 +50,18 @@ export function ActionsPanel() {
                 description: "Could not generate the AI alert. Please try again.",
             });
         }
-        setIsLoading(false);
+        setIsGenerating(false);
+    };
+    
+    const handleSimulateNewCrash = async () => {
+        setIsSimulating(true);
+        setAlertResult(null);
+        await simulateNewCrash();
+        toast({
+            title: "New Crash Simulated",
+            description: "The crash data has been updated.",
+        });
+        setIsSimulating(false);
     };
 
     return (
@@ -64,24 +74,39 @@ export function ActionsPanel() {
                         Smart Alert
                     </CardTitle>
                     <CardDescription>
-                        Generate an AI-powered emergency alert based on the crash data.
+                        Generate an AI-powered emergency alert or simulate a new crash event.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
-                        <Button onClick={handleGenerateAlert} disabled={isLoading} className="w-full h-12 text-md font-semibold">
-                            {isLoading ? (
-                                <>
-                                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                    Generating...
-                                </>
-                            ) : (
-                                <>
-                                    <Send className="mr-2 h-5 w-5" />
-                                    Generate Emergency Alert
-                                </>
-                            )}
-                        </Button>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <Button onClick={handleGenerateAlert} disabled={isGenerating || isSimulating} className="h-12 text-md font-semibold">
+                                {isGenerating ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                        Generating...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send className="mr-2 h-5 w-5" />
+                                        Generate Alert
+                                    </>
+                                )}
+                            </Button>
+                            <Button onClick={handleSimulateNewCrash} disabled={isGenerating || isSimulating} variant="outline" className="h-12 text-md font-semibold">
+                                {isSimulating ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                        Simulating...
+                                    </>
+                                ) : (
+                                    <>
+                                        <RefreshCw className="mr-2 h-5 w-5" />
+                                        New Crash
+                                    </>
+                                )}
+                            </Button>
+                        </div>
                         {alertResult && (
                             <div className="border-t pt-4 mt-6 space-y-4 animate-in fade-in duration-500">
                                 <h4 className="font-semibold font-headline">Generated Message:</h4>
@@ -123,10 +148,20 @@ export function ActionsPanel() {
                                 </Avatar>
                                 <div className="flex-1">
                                     <p className="font-semibold">{contact.name}</p>
-                                    <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                                        <Phone className="w-3 h-3" />
-                                        {contact.phone}
-                                    </p>
+                                    <div className="text-sm text-muted-foreground space-y-1">
+                                      {contact.phone && (
+                                        <p className="flex items-center gap-1.5">
+                                          <Phone className="w-3 h-3" />
+                                          {contact.phone}
+                                        </p>
+                                      )}
+                                      {contact.email && (
+                                         <p className="flex items-center gap-1.5">
+                                           <Mail className="w-3 h-3" />
+                                           {contact.email}
+                                         </p>
+                                      )}
+                                    </div>
                                 </div>
                                 <Badge variant="outline">{contact.relation}</Badge>
                             </li>

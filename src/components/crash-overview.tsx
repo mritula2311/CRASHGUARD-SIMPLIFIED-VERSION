@@ -1,8 +1,13 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { MapPin, AlertTriangle, Gauge } from "lucide-react";
 import Image from 'next/image';
+import { useCrash } from '@/context/CrashContext';
 
 export function CrashOverview() {
+    const { crashData } = useCrash();
+
     return (
         <div className="space-y-8">
             <Card className="overflow-hidden shadow-lg transition-shadow hover:shadow-xl">
@@ -14,7 +19,7 @@ export function CrashOverview() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-6 pt-0">
-                    <p className="font-semibold text-lg mb-4">123 Collision Course, Metro City, 12345</p>
+                    <p className="font-semibold text-lg mb-4">{crashData.location}</p>
                     <div className="rounded-lg overflow-hidden border">
                         <Image
                             src="https://placehold.co/800x400.png"
@@ -40,7 +45,7 @@ export function CrashOverview() {
                         <div className="relative">
                             <AlertTriangle className="w-24 h-24 text-accent animate-pulse-accent" />
                         </div>
-                        <p className="text-5xl font-bold font-headline text-accent mt-4">HIGH</p>
+                        <p className="text-5xl font-bold font-headline text-accent mt-4">{crashData.severity.toUpperCase()}</p>
                         <p className="text-muted-foreground mt-2">Based on vibration sensor data.</p>
                     </CardContent>
                 </Card>
@@ -53,7 +58,7 @@ export function CrashOverview() {
                     </CardHeader>
                     <CardContent className="flex flex-col items-center justify-center text-center pt-4 pb-8">
                         <div className="relative flex items-end">
-                            <p className="text-7xl font-bold font-headline text-primary">120</p>
+                            <p className="text-7xl font-bold font-headline text-primary">{crashData.speed}</p>
                             <p className="text-2xl font-semibold text-muted-foreground mb-2 ml-1">km/h</p>
                         </div>
                          <p className="text-muted-foreground mt-2">Based on accelerometer data.</p>
