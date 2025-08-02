@@ -19,11 +19,7 @@ interface CrashContextType {
 const CrashContext = createContext<CrashContextType | undefined>(undefined);
 
 export function CrashProvider({ children }: { children: ReactNode }) {
-  const [crashData, setCrashData] = useState<CrashData | null>(null);
-
-  useEffect(() => {
-    setCrashData(initialCrashData);
-  }, []);
+  const [crashData, setCrashData] = useState<CrashData | null>(initialCrashData);
 
   const simulateNewCrash = async () => {
     // In a real app, this would fetch from a live source.
