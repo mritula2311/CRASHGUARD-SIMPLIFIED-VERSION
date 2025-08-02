@@ -1,12 +1,59 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { MapPin, AlertTriangle, Gauge } from "lucide-react";
+import { MapPin, AlertTriangle, Gauge, Loader2 } from "lucide-react";
 import Image from 'next/image';
 import { useCrash } from '@/context/CrashContext';
+import { Skeleton } from "./ui/skeleton";
 
 export function CrashOverview() {
     const { crashData } = useCrash();
+
+    if (!crashData) {
+        return (
+            <div className="space-y-8">
+                <Card className="shadow-lg">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-2xl">
+                            <Skeleton className="h-8 w-1/2" />
+                        </CardTitle>
+                        <CardDescription>
+                            <Skeleton className="h-4 w-3/4" />
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Skeleton className="h-10 w-full mb-4" />
+                        <Skeleton className="w-full h-[400px] rounded-lg" />
+                    </CardContent>
+                </Card>
+                <div className="grid md:grid-cols-2 gap-8">
+                    <Card className="shadow-lg">
+                        <CardHeader>
+                            <CardTitle className="font-headline text-2xl flex items-center gap-3">
+                                 <Skeleton className="h-8 w-1/2" />
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex flex-col items-center justify-center text-center pt-4 pb-8">
+                            <Skeleton className="w-24 h-24 rounded-full" />
+                            <Skeleton className="h-12 w-3/4 mt-4" />
+                            <Skeleton className="h-4 w-1/2 mt-2" />
+                        </CardContent>
+                    </Card>
+                    <Card className="shadow-lg">
+                        <CardHeader>
+                             <CardTitle className="font-headline text-2xl flex items-center gap-3">
+                                 <Skeleton className="h-8 w-1/2" />
+                            </CardTitle>
+                        </CardHeader>
+                         <CardContent className="flex flex-col items-center justify-center text-center pt-4 pb-8">
+                            <Skeleton className="h-20 w-3/4" />
+                            <Skeleton className="h-4 w-1/2 mt-2" />
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className="space-y-8">

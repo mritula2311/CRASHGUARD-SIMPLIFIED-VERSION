@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import type { CrashData } from '@/lib/types';
 import { getSensorData } from '@/services/lora-receiver';
 
@@ -11,15 +11,19 @@ const initialCrashData: CrashData = {
 };
 
 interface CrashContextType {
-  crashData: CrashData;
-  setCrashData: React.Dispatch<React.SetStateAction<CrashData>>;
+  crashData: CrashData | null;
+  setCrashData: React.Dispatch<React.SetStateAction<CrashData | null>>;
   simulateNewCrash: () => Promise<void>;
 }
 
 const CrashContext = createContext<CrashContextType | undefined>(undefined);
 
 export function CrashProvider({ children }: { children: ReactNode }) {
-  const [crashData, setCrashData] = useState<CrashData>(initialCrashData);
+  const [crashData, setCrashData] = useState<CrashData | null>(null);
+
+  useEffect(() => {
+    setCrashData(initialCrashData);
+  }, []);
 
   const simulateNewCrash = async () => {
     // In a real app, this would fetch from a live source.

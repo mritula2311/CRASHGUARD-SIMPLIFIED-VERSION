@@ -31,6 +31,7 @@ export function ActionsPanel() {
     const { toast } = useToast();
 
     const handleGenerateAlert = async () => {
+        if (!crashData) return;
         setIsGenerating(true);
         setAlertResult(null);
         try {
@@ -79,6 +80,8 @@ export function ActionsPanel() {
         setIsSimulating(false);
     };
 
+    const isButtonDisabled = isGenerating || isSimulating || !crashData;
+
     return (
         <div className="space-y-8">
             <Toaster />
@@ -95,7 +98,7 @@ export function ActionsPanel() {
                 <CardContent>
                     <div className="space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <Button onClick={handleGenerateAlert} disabled={isGenerating || isSimulating} className="h-12 text-md font-semibold">
+                            <Button onClick={handleGenerateAlert} disabled={isButtonDisabled} className="h-12 text-md font-semibold">
                                 {isGenerating ? (
                                     <>
                                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -108,7 +111,7 @@ export function ActionsPanel() {
                                     </>
                                 )}
                             </Button>
-                            <Button onClick={handleSimulateNewCrash} disabled={isGenerating || isSimulating} variant="outline" className="h-12 text-md font-semibold">
+                            <Button onClick={handleSimulateNewCrash} disabled={isButtonDisabled} variant="outline" className="h-12 text-md font-semibold">
                                 {isSimulating ? (
                                     <>
                                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
