@@ -8,7 +8,7 @@ import { Users, Phone, Mail, Loader2, Send, Bot, RefreshCw } from 'lucide-react'
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import type { GenerateEmergencyAlertMessageOutput } from '@/ai/flows/generate-emergency-alert';
-import { generateAlert } from '@/app/actions';
+import { generateAlert, sendEmail } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Toaster } from './ui/toaster';
 import { useCrash } from '@/context/CrashContext';
@@ -19,6 +19,7 @@ const initialContacts: Contact[] = [
     { name: 'Jane Doe', phone: '555-0101', email: 'jane.doe@email.com', relation: 'Spouse' },
     { name: 'John Smith', phone: '555-0102', email: 'john.smith@email.com', relation: 'Father' },
     { name: 'Emergency Services', phone: '911', relation: 'Official' },
+    { name: 'Crash Guard IEEE', email: 'crashguardieee@gmail.com', relation: 'Test Contact' },
 ];
 
 export function ActionsPanel() {
@@ -42,6 +43,20 @@ export function ActionsPanel() {
                 title: "Alert Generated",
                 description: "AI has created an emergency message and suggested recipients.",
             });
+
+            // Send email after generating alert
+            if (result.recipients.includes('Crash Guard IEEE')) {
+                await sendEmail({
+                    to: 'crashguardieee@gmail.com',
+                    subject: `Emergency Alert: ${crashData.severity} Severity Crash Detected`,
+                    body: result.message,
+                });
+                toast({
+                    title: "Email Sent",
+                    description: "Emergency alert sent to crashguardieee@gmail.com.",
+                });
+            }
+
         } catch (error) {
             console.error("Failed to generate alert:", error);
             toast({

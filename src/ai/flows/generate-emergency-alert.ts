@@ -69,7 +69,7 @@ const prompt = ai.definePrompt({
   {{/each}}
 
   Generate a concise emergency alert message that includes the location, severity, and speed of the crash.  Based on the severity of the crash, choose which contacts from the list of available contacts should receive the message. Always include the location.
-  For high severity, alert emergency services and all other contacts. For medium severity, alert family and close friends. For low severity, alert only the primary contact (e.g., spouse or father).
+  For high severity, alert emergency services and all other contacts. For medium severity, alert family and close friends. For low severity, alert only the primary contact (e.g., spouse or father). If a contact has the relation 'Test Contact', always include them in the recipients for any severity level.
 
   Respond with the generated message and the list of recipients' names who should receive the message.
 
