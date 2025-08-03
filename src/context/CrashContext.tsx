@@ -19,7 +19,14 @@ interface CrashContextType {
 const CrashContext = createContext<CrashContextType | undefined>(undefined);
 
 export function CrashProvider({ children }: { children: ReactNode }) {
-  const [crashData, setCrashData] = useState<CrashData | null>(initialCrashData);
+  const [crashData, setCrashData] = useState<CrashData | null>(null);
+
+  useEffect(() => {
+    // Set initial data on the client to avoid hydration mismatch from Math.random()
+    // This runs once after the component mounts.
+    getSensorData().then(setCrashData);
+  }, []);
+
 
   const simulateNewCrash = async () => {
     // In a real app, this would fetch from a live source.
