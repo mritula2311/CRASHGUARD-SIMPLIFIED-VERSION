@@ -46,16 +46,37 @@ export function ActionsPanel() {
             });
 
             // Send email after generating alert
-            if (result.recipients.includes('Crash Guard IEEE')) {
+            // Always send email report to mritulashankar@gmail.com
+            try {
                 await sendEmail({
-                    to: 'crashguardieee@gmail.com',
+                    to: 'mritulashankar@gmail.com',
                     subject: `Emergency Alert: ${crashData.severity} Severity Crash Detected`,
                     body: result.message,
                 });
                 toast({
                     title: "Email Sent",
-                    description: "Emergency alert sent to crashguardieee@gmail.com.",
+                    description: "Emergency alert sent to mritulashankar@gmail.com.",
                 });
+            } catch (emailError) {
+                console.error("Failed to send email:", emailError);
+                toast({
+                    variant: 'destructive',
+                    title: "Email Failed",
+                    description: "Could not send email alert, but message was generated.",
+                });
+            }
+
+            // Also send to existing test contact if included in recipients
+            if (result.recipients.includes('Crash Guard IEEE')) {
+                try {
+                    await sendEmail({
+                        to: 'crashguardieee@gmail.com',
+                        subject: `Emergency Alert: ${crashData.severity} Severity Crash Detected`,
+                        body: result.message,
+                    });
+                } catch (emailError) {
+                    console.error("Failed to send email to test contact:", emailError);
+                }
             }
 
         } catch (error) {
