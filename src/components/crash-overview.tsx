@@ -7,7 +7,7 @@ import { useCrash } from '@/context/CrashContext';
 import { Skeleton } from "./ui/skeleton";
 
 export function CrashOverview() {
-    const { crashData } = useCrash();
+    const { crashData, lastAlertStatus } = useCrash();
 
     if (!crashData) {
         return (
@@ -57,6 +57,11 @@ export function CrashOverview() {
 
     return (
         <div className="space-y-8">
+            {lastAlertStatus && (
+                <div className="mb-4 p-4 rounded-lg bg-secondary border-l-4 border-primary text-primary font-semibold">
+                    {lastAlertStatus}
+                </div>
+            )}
             <Card className="overflow-hidden shadow-lg transition-shadow hover:shadow-xl">
                 <CardHeader className="flex flex-row items-start gap-4 p-6">
                     <MapPin className="w-8 h-8 text-primary flex-shrink-0 mt-1" />

@@ -1,0 +1,14 @@
+TRAFFIC ACCIDENT ALERT
+
+A vehicle crash has been detected and requires police investigation and traffic management.
+
+Incident Details:
+- Traffic accident requiring police response
+- Potential traffic disruption at crash site
+- Investigation may be required
+- Scene security and traffic control needed
+
+Please dispatch police units to manage the incident and secure the crash site.
+
+Priority: HIGH
+Response Required: IMMEDIATE

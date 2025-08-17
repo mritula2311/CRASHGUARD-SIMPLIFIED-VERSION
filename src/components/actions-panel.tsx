@@ -4,8 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Users, Phone, Mail, Loader2, Send, Bot, RefreshCw } from 'lucide-react';
-import { Separator } from "@/components/ui/separator";
+import { Users, Mail, Loader2, Send, Bot, RefreshCw } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import type { GenerateEmergencyAlertMessageOutput } from '@/ai/flows/generate-emergency-alert';
 import { generateAlert, sendEmail } from '@/app/actions';
@@ -16,15 +15,12 @@ import type { Contact } from '@/lib/types';
 
 
 const initialContacts: Contact[] = [
-    { name: 'Jane Doe', phone: '555-0101', email: 'jane.doe@email.com', relation: 'Spouse' },
-    { name: 'John Smith', phone: '555-0102', email: 'john.smith@email.com', relation: 'Father' },
-    { name: 'Emergency Services', phone: '911', relation: 'Official' },
-    { name: 'Crash Guard IEEE', email: 'crashguardieee@gmail.com', relation: 'Test Contact' },
-];
+    { name: 'Mritula Shankar', email: 'mritulashankar@gmail.com', relation: 'Owner' },
+]; // Only user's email remains
 
 export function ActionsPanel() {
     const { crashData, simulateNewCrash } = useCrash();
-    const [contacts] = useState<Contact[]>(initialContacts);
+    const contacts = initialContacts;
     const [alertResult, setAlertResult] = useState<GenerateEmergencyAlertMessageOutput | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSimulating, setIsSimulating] = useState(false);
@@ -35,35 +31,72 @@ export function ActionsPanel() {
         setIsGenerating(true);
         setAlertResult(null);
         try {
-            const result = await generateAlert({
-                ...crashData,
-                contacts: contacts,
-            });
-            setAlertResult(result);
+            // Create a professional alert message without emoticons
+            const alertMessage = `CRITICAL VEHICLE CRASH DETECTED
+
+Emergency crash detected by CrashGuard monitoring system.
+
+Crash Details:
+- Location: ${crashData.location}
+- Severity: ${crashData.severity}
+- Speed: ${crashData.speed} km/h
+- Time: ${new Date().toLocaleString()}
+
+EMERGENCY RESPONSE REQUIRED
+
+Please verify the safety of the vehicle and occupants immediately.
+Contact emergency services if medical assistance is needed.
+
+This is an automated alert from your crash detection system.`;
+
+            // Set the alert result for display
+            setAlertResult({ message: alertMessage, recipients: contacts.map(c => c.email || '').filter(Boolean) });
+            
             toast({
                 title: "Alert Generated",
-                description: "AI has created an emergency message and suggested recipients.",
+                description: "Emergency alert created successfully.",
             });
 
-            // Send email after generating alert
-            if (result.recipients.includes('Crash Guard IEEE')) {
-                await sendEmail({
-                    to: 'crashguardieee@gmail.com',
-                    subject: `Emergency Alert: ${crashData.severity} Severity Crash Detected`,
-                    body: result.message,
-                });
-                toast({
-                    title: "Email Sent",
-                    description: "Emergency alert sent to crashguardieee@gmail.com.",
-                });
-            }
+            const body = `CRITICAL VEHICLE CRASH DETECTED
 
+Severity: ${crashData.severity}
+Speed at Impact: ${crashData.speed} km/h
+Impact Force: High
+Vehicle Location: ${crashData.location}
+
+EMERGENCY RESPONSE REQUIRED
+
+Immediate attention and emergency services dispatch may be required.`;
+
+            const subject = `URGENT: ${crashData.severity} Crash Detected - ${crashData.location}`;
+
+            for (const contact of contacts) {
+                if (!contact.email) continue; // Skip contacts without email
+                try {
+                    await sendEmail({
+                        to: contact.email,
+                        subject,
+                        body,
+                    }, crashData); // Pass crash data context
+                    toast({
+                        title: "Email Sent",
+                        description: `Emergency alert sent to ${contact.email}.`,
+                    });
+                } catch (emailError) {
+                    console.error(`Failed to send email to ${contact.email}:`, emailError);
+                    toast({
+                        variant: 'destructive',
+                        title: "Email Sending Failed",
+                        description: `Could not send alert to ${contact.email}.`,
+                    });
+                }
+            }
         } catch (error) {
             console.error("Failed to generate alert:", error);
             toast({
                 variant: 'destructive',
                 title: "Generation Failed",
-                description: "Could not generate the AI alert. Please try again.",
+                description: "Could not generate the alert. Please try again.",
             });
         }
         setIsGenerating(false);
@@ -131,15 +164,6 @@ export function ActionsPanel() {
                                 <blockquote className="text-sm bg-secondary p-4 rounded-lg border-l-4 border-accent">
                                     {alertResult.message}
                                 </blockquote>
-                                
-                                <h4 className="font-semibold font-headline">Suggested Recipients:</h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {alertResult.recipients.map((recipient, index) => (
-                                        <Badge key={index} variant="default" className="bg-primary/80">
-                                            {recipient}
-                                        </Badge>
-                                    ))}
-                                </div>
                             </div>
                         )}
                     </div>
@@ -150,43 +174,33 @@ export function ActionsPanel() {
                 <CardHeader>
                     <CardTitle className="font-headline text-2xl flex items-center gap-3">
                         <Users className="w-6 h-6 text-primary" />
-                        Emergency Contacts
+                        Emergency Contact
                     </CardTitle>
                     <CardDescription>
-                        These contacts will be considered for alerts.
+                        Only your email will receive crash alerts.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <ul className="space-y-4">
-                        {contacts.map((contact, index) => (
-                            <li key={index} className="flex items-center gap-4">
+                    <div className="space-y-4">
+                        {contacts.map((contact) => (
+                            <div key={contact.email} className="flex items-center gap-4">
                                 <Avatar>
-                                    <AvatarImage data-ai-hint="person" src={`https://placehold.co/40x40.png`} />
+                                    <AvatarImage alt={contact.name} src="https://placehold.co/40x40.png" />
                                     <AvatarFallback>{contact.name.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1">
                                     <p className="font-semibold">{contact.name}</p>
                                     <div className="text-sm text-muted-foreground space-y-1">
-                                      {contact.phone && (
-                                        <p className="flex items-center gap-1.5">
-                                          <Phone className="w-3 h-3" />
-                                          {contact.phone}
-                                        </p>
-                                      )}
-                                      {contact.email && (
-                                         <p className="flex items-center gap-1.5">
-                                           <Mail className="w-3 h-3" />
-                                           {contact.email}
-                                         </p>
-                                      )}
+                                        <span className="flex items-center gap-1.5">
+                                            <Mail className="w-3 h-3" />
+                                            {contact.email}
+                                        </span>
                                     </div>
                                 </div>
-                                <Badge variant="outline">{contact.relation}</Badge>
-                            </li>
+                                <Badge variant="secondary">{contact.relation}</Badge>
+                            </div>
                         ))}
-                    </ul>
-                    <Separator className="my-6" />
-                    <Button variant="outline" className="w-full">Add New Contact</Button>
+                    </div>
                 </CardContent>
             </Card>
         </div>
