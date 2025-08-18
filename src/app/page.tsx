@@ -1,7 +1,7 @@
 import { ReinforcementModelPanel } from '@/components/reinforcement-model-panel';
 import { EmergencyContactSmall } from '@/components/emergency-contacts-compact';
 import { EmailNotifications } from '@/components/email-notifications';
-import { ThingSpeakSensorData } from '@/components/thingspeak-sensor-data';
+import { DrqnPredictions } from '@/components/drqn-predictions';
 import { Shield, Brain, Activity, Users, Mail, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -123,8 +123,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Live Sensor Data from ThingSpeak */}
-          <ThingSpeakSensorData />
+          {/* DRQN AI Model Predictions - Full Width */}
+          <DrqnPredictions />
         </div>
       </main>
 

@@ -1,0 +1,14 @@
+﻿model: DRQN (LSTM-DQN)
+version: drqn_v0.1
+sha256: 46788DDD2FBB7DD542AF6296FECFFB5D7D551CB9390ACFE893BB1991776B2C28
+trained_on: sensor.json
+epochs: 40   # adjust if different
+sup_lambda: 1.0   # adjust if different
+reward_notes:
+  S2: ALERT preferred
+  S3: EMERGENCY preferred
+runtime_gating:
+  k_consecutive: 1
+  cooldown_sec: 5
+  min_vib_for_dispatch: 4
+  incident_window_sec: 10

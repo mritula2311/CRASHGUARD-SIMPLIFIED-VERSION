@@ -1,0 +1,70 @@
+[
+  {
+    "time": "2025-08-18T19:40:00.000Z",
+    "data": {
+      "tilt_degrees": 2.1,
+      "accel_x": -0.12,
+      "accel_y": 0.08,
+      "accel_z": -9.78,
+      "vibration_sensors": {
+        "front_left": 0,
+        "front_right": 0,
+        "mid_left": 0,
+        "mid_right": 0,
+        "rear_left": 1,
+        "rear_right": 0
+      }
+    }
+  },
+  {
+    "time": "2025-08-18T19:39:55.000Z",
+    "data": {
+      "tilt_degrees": 1.8,
+      "accel_x": -0.15,
+      "accel_y": 0.12,
+      "accel_z": -9.81,
+      "vibration_sensors": {
+        "front_left": 0,
+        "front_right": 0,
+        "mid_left": 0,
+        "mid_right": 0,
+        "rear_left": 0,
+        "rear_right": 0
+      }
+    }
+  },
+  {
+    "time": "2025-08-18T19:39:50.000Z",
+    "data": {
+      "tilt_degrees": 2.3,
+      "accel_x": -0.18,
+      "accel_y": 0.06,
+      "accel_z": -9.79,
+      "vibration_sensors": {
+        "front_left": 1,
+        "front_right": 0,
+        "mid_left": 0,
+        "mid_right": 0,
+        "rear_left": 0,
+        "rear_right": 1
+      }
+    }
+  },
+  {
+    "time": "2025-08-18T19:39:45.000Z",
+    "data": {
+      "tilt_degrees": 1.2,
+      "accel_x": -0.10,
+      "accel_y": 0.05,
+      "accel_z": -9.82,
+      "vibration_sensors": {
+        "front_left": 0,
+        "front_right": 0,
+        "mid_left": 0,
+        "mid_right": 0,
+        "rear_left": 0,
+        "rear_right": 0
+      }
+    }
+  }
+]

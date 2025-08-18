@@ -5,13 +5,6 @@ export interface Contact {
   relation: string;
 }
 
-export interface GPSCoordinates {
-  latitude: number;
-  longitude: number;
-  accuracy?: number;
-  timestamp: string;
-}
-
 export interface EmergencyContact {
   id: string;
   name: string;
@@ -25,7 +18,6 @@ export interface CrashData {
   location: string;
   severity: 'Low' | 'Medium' | 'High';
   speed: number;
-  gps?: GPSCoordinates;
 }
 
 export interface EmailNotification {

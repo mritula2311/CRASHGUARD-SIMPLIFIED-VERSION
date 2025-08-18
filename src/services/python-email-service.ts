@@ -4,8 +4,6 @@ import { spawn } from 'child_process';
 import { writeFile, unlink } from 'fs/promises';
 import path from 'path';
 import os from 'os';
-import type { GPSCoordinates } from '@/lib/types';
-import { formatGPSCoordinates } from './gps-service';
 
 interface CrashAlertData {
   location: string;
@@ -14,7 +12,7 @@ interface CrashAlertData {
   recipient: string;
   timestamp: string;
   sensorData?: any;
-  gpsLocation?: GPSCoordinates;
+  drqnAnalysis?: any; // Include DRQN analysis data
 }
 
 interface EmailResponse {
@@ -25,23 +23,65 @@ interface EmailResponse {
 }
 
 /**
- * Send crash alert using Python email system
+ * Get real-time DRQN analysis from the reinforcement model
+ */
+async function getDRQNAnalysis(): Promise<any> {
+  try {
+    const response = await fetch('http://localhost:9004/api/drqn-predictions');
+    if (response.ok) {
+      const drqnData = await response.json();
+      return drqnData;
+    } else {
+      console.warn('DRQN analysis not available, using fallback');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching DRQN analysis:', error);
+    return null;
+  }
+}
+
+/**
+ * Determine crash severity from DRQN analysis
+ */
+function determineSeverityFromDRQN(drqnAnalysis?: any): 'Low' | 'Medium' | 'High' | 'Critical' {
+  if (!drqnAnalysis) return 'Medium';
+  
+  const crashRisk = drqnAnalysis.crash_risk_level;
+  const actionName = drqnAnalysis.action_name;
+  
+  // Map DRQN predictions to severity levels
+  if (crashRisk === 'CRITICAL' || actionName === 'EMERGENCY_DISPATCH') {
+    return 'Critical';
+  } else if (crashRisk === 'HIGH' || actionName === 'ALERT_NEARBY') {
+    return 'High';
+  } else if (crashRisk === 'MODERATE' || actionName === 'LOG_MINOR') {
+    return 'Medium';
+  } else {
+    return 'Low';
+  }
+}
+
+/**
+ * Send crash alert using Python email system with DRQN analysis
  */
 export async function sendCrashAlertViaPython(
   message: string,
-  gpsLocation?: GPSCoordinates,
   sensorData?: any
 ): Promise<EmailResponse> {
   try {
-    // Prepare crash data for Python script
+    // Get real-time DRQN analysis from the reinforcement model
+    const drqnAnalysis = await getDRQNAnalysis();
+    
+    // Prepare crash data for Python script with DRQN analysis
     const crashData: CrashAlertData = {
-      location: gpsLocation ? formatGPSCoordinates(gpsLocation) : 'Location not available',
-      severity: determineSeverity(sensorData),
+      location: 'Location not available',
+      severity: determineSeverityFromDRQN(drqnAnalysis),
       speed: calculateSpeed(sensorData),
       recipient: 'mritulashankar@gmail.com',
       timestamp: new Date().toISOString(),
-      sensorData,
-      gpsLocation
+      sensorData: drqnAnalysis?.sensor_data || sensorData,
+      drqnAnalysis // Include full DRQN analysis
     };
 
     // Convert to JSON

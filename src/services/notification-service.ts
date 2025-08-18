@@ -1,8 +1,7 @@
 'use server';
 
-import type { EmailNotification, EmergencyContact, GPSCoordinates } from '@/lib/types';
+import type { EmailNotification, EmergencyContact } from '@/lib/types';
 import { getEmergencyContacts, getHighPriorityContacts } from './emergency-contacts';
-import { formatGPSCoordinates } from './gps-service';
 import { sendCrashAlertViaPython } from './python-email-service';
 
 // Store notifications in memory (in real app, use database)
@@ -13,7 +12,6 @@ let emailNotifications: EmailNotification[] = [];
  */
 export async function sendEmergencyAlert(
   message: string,
-  gpsLocation?: GPSCoordinates,
   sensorData?: any
 ): Promise<EmailNotification[]> {
   const notifications: EmailNotification[] = [];
@@ -31,7 +29,7 @@ export async function sendEmergencyAlert(
     console.log('Sending crash alert via Python email system...');
     
     // Use Python email system to send crash alert
-    const result = await sendCrashAlertViaPython(message, gpsLocation, sensorData);
+    const result = await sendCrashAlertViaPython(message, sensorData);
     
     if (result.success) {
       notification.status = 'sent';

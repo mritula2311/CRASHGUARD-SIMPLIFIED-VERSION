@@ -2,7 +2,7 @@
 
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { generateAlert, sendEmail } from '@/app/actions';
-import type { CrashData, GPSCoordinates, EmergencyContact, EmailNotification } from '@/lib/types';
+import type { CrashData, EmergencyContact, EmailNotification } from '@/lib/types';
 import { getReinforcementModelData, type ReinforcementModelData } from '@/services/reinforcement-model';
 import { getEmergencyContacts } from '@/services/emergency-contacts';
 import { sendEmergencyAlert } from '@/services/notification-service';
@@ -10,14 +10,11 @@ import { sendEmergencyAlert } from '@/services/notification-service';
 export interface CrashContextType {
   modelData: ReinforcementModelData | null;
   setModelData: React.Dispatch<React.SetStateAction<ReinforcementModelData | null>>;
-  gpsLocation: GPSCoordinates | null;
-  setGpsLocation: React.Dispatch<React.SetStateAction<GPSCoordinates | null>>;
   emergencyContacts: EmergencyContact[];
   setEmergencyContacts: React.Dispatch<React.SetStateAction<EmergencyContact[]>>;
   emailNotifications: EmailNotification[];
   setEmailNotifications: React.Dispatch<React.SetStateAction<EmailNotification[]>>;
   refreshModelData: () => Promise<void>;
-  refreshGPSLocation: () => Promise<void>;
   lastAlertStatus: string | null;
   isEmergencyMode: boolean;
 }
@@ -26,36 +23,26 @@ const CrashContext = createContext<CrashContextType | undefined>(undefined);
 
 export function CrashProvider({ children }: { children: ReactNode }) {
   const [modelData, setModelData] = useState<ReinforcementModelData | null>(null);
-  const [gpsLocation, setGpsLocation] = useState<GPSCoordinates | null>(null);
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([]);
   const [emailNotifications, setEmailNotifications] = useState<EmailNotification[]>([]);
   const [lastAlertStatus, setLastAlertStatus] = useState<string | null>(null);
   const [isEmergencyMode, setIsEmergencyMode] = useState(false);
 
   useEffect(() => {
-    // Load initial data with static GPS location
-    const staticGPSLocation = {
-      latitude: 40.708154,
-      longitude: -74.010420,
-      accuracy: 8.5,
-      timestamp: new Date().toISOString()
-    };
-
+    // Load initial data
     Promise.all([
       getReinforcementModelData().catch(console.error),
       getEmergencyContacts().catch(console.error)
     ]).then(([modelResult, contactsResult]) => {
       if (modelResult) setModelData(modelResult);
       if (contactsResult) setEmergencyContacts(contactsResult);
-      // Set static GPS location
-      setGpsLocation(staticGPSLocation);
     });
   }, []);
 
   useEffect(() => {
     // Monitor for emergency conditions and send alerts
     const handleEmergencyAlert = async () => {
-      if (!modelData || !gpsLocation) return;
+      if (!modelData) return;
       
       // Check if model predicts emergency dispatch
       const isEmergency = modelData.prediction.action === 'EMERGENCY_DISPATCH' || 
@@ -83,77 +70,57 @@ Risk Level: ${modelData.riskLevel}
 AI Prediction: ${modelData.prediction.action.replace(/_/g, ' ')}
 Confidence Level: ${Math.round(modelData.prediction.confidence * 100)}%
 
-Vehicle Status:
-- Active Vibration Sensors: ${modelData.vibrationStatus.totalActive} out of 6
-- Acceleration Magnitude: ${modelData.accelerationMagnitude.toFixed(2)} m/s²
-- Vehicle Tilt Angle: ${Math.abs(modelData.latestSensorReading.data.tilt_degrees).toFixed(1)}°
+Sensor Data:
+- Acceleration X: ${modelData.latestSensorReading?.data?.accel_x || 'N/A'}
+- Acceleration Y: ${modelData.latestSensorReading?.data?.accel_y || 'N/A'} 
+- Acceleration Z: ${modelData.latestSensorReading?.data?.accel_z || 'N/A'}
+- Tilt: ${modelData.latestSensorReading?.data?.tilt_degrees || 'N/A'}°
 
-Active Sensor Positions: ${modelData.vibrationStatus.activePositions.join(', ') || 'None'}
+This is an automated alert. Please check on the vehicle and contact emergency services if necessary.
 
-EMERGENCY RESPONSE MAY BE REQUIRED
-Please verify the safety of the vehicle and occupants immediately.
+Emergency Support: crashguard1234@gmail.com`;
 
-If this is a real emergency, contact emergency services (911) immediately.`;
-
-        const notifications = await sendEmergencyAlert(message, gpsLocation, modelData);
-        setEmailNotifications(prev => [...notifications, ...prev]);
+        console.log('📧 Sending emergency alert automatically...');
+        const notifications = await sendEmergencyAlert(message, modelData);
         
-        const sentCount = notifications.filter(n => n.status === 'sent').length;
-        const failedCount = notifications.filter(n => n.status === 'failed').length;
+        setEmailNotifications(prev => [...prev, ...notifications]);
+        setLastAlertStatus(`Emergency alert sent to ${notifications.length} contact(s)`);
+        console.log('✅ Emergency alert sent successfully');
         
-        if (sentCount > 0) {
-          setLastAlertStatus(`Emergency alerts sent to ${sentCount} contact${sentCount > 1 ? 's' : ''} at ${new Date().toLocaleTimeString()}`);
-        } else if (failedCount > 0) {
-          setLastAlertStatus(`Failed to send emergency alerts to ${failedCount} contact${failedCount > 1 ? 's' : ''}`);
-        }
       } catch (error) {
-        console.error('Error sending emergency alert:', error);
-        setLastAlertStatus('Error sending emergency alerts');
+        console.error('❌ Failed to send emergency alert:', error);
+        setLastAlertStatus(`Failed to send emergency alert: ${error}`);
       }
     };
 
-    handleEmergencyAlert();
-  }, [modelData, gpsLocation, isEmergencyMode]);
+    // Add debounce to prevent rapid firing
+    const timeout = setTimeout(handleEmergencyAlert, 2000);
+    return () => clearTimeout(timeout);
+  }, [modelData, isEmergencyMode]);
 
   const refreshModelData = async () => {
     try {
-      const newModelData = await getReinforcementModelData();
-      setModelData(newModelData);
+      const data = await getReinforcementModelData();
+      setModelData(data);
     } catch (error) {
-      console.error('Error fetching model data:', error);
-    }
-  };
-
-  const refreshGPSLocation = async () => {
-    try {
-      // Return static GPS location instead of fetching
-      const staticLocation = {
-        latitude: 40.708154,
-        longitude: -74.010420,
-        accuracy: 8.5,
-        timestamp: new Date().toISOString()
-      };
-      setGpsLocation(staticLocation);
-    } catch (error) {
-      console.error('Error setting GPS location:', error);
+      console.error('Failed to refresh model data:', error);
     }
   };
 
   return (
-    <CrashContext.Provider value={{ 
-      modelData, 
-      setModelData, 
-      gpsLocation,
-      setGpsLocation,
-      emergencyContacts,
-      setEmergencyContacts,
-      emailNotifications,
-      setEmailNotifications,
-      refreshModelData, 
-      refreshGPSLocation,
-      lastAlertStatus,
-      isEmergencyMode
-    }}>
+    <CrashContext.Provider
+      value={{
+        modelData,
+        setModelData,
+        emergencyContacts,
+        setEmergencyContacts,
+        emailNotifications,
+        setEmailNotifications,
+        refreshModelData,
+        lastAlertStatus,
+        isEmergencyMode
+      }}
+    >
       {children}
     </CrashContext.Provider>
   );

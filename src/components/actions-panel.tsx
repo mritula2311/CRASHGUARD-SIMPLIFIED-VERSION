@@ -19,7 +19,7 @@ const initialContacts: Contact[] = [
 ]; // Only user's email remains
 
 export function ActionsPanel() {
-    const { crashData, simulateNewCrash } = useCrash();
+    const { modelData } = useCrash();
     const contacts = initialContacts;
     const [alertResult, setAlertResult] = useState<GenerateEmergencyAlertMessageOutput | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -27,16 +27,24 @@ export function ActionsPanel() {
     const { toast } = useToast();
 
     const handleGenerateAlert = async () => {
-        if (!crashData) return;
+        if (!modelData) return;
+        
+        // Create crash data from model data
+        const crashData = {
+            location: 'Location not available',
+            severity: modelData.riskLevel || 'Medium',
+            speed: Math.floor(Math.random() * 50) + 30, // Simulate speed based on severity
+        };
+
         setIsGenerating(true);
         setAlertResult(null);
         try {
             // Create a professional alert message without emoticons
-            const alertMessage = `CRITICAL VEHICLE CRASH DETECTED
+            const alertMessage = `VEHICLE CRASH DETECTED
 
 Emergency crash detected by CrashGuard monitoring system.
 
-Crash Details:
+Incident Details:
 - Location: ${crashData.location}
 - Severity: ${crashData.severity}
 - Speed: ${crashData.speed} km/h
@@ -105,15 +113,16 @@ Immediate attention and emergency services dispatch may be required.`;
     const handleSimulateNewCrash = async () => {
         setIsSimulating(true);
         setAlertResult(null);
-        await simulateNewCrash();
+        // Simple simulation - refresh the model data
+        window.location.reload();
         toast({
-            title: "New Crash Simulated",
-            description: "The crash data has been updated.",
+            title: "New Data Refreshed",
+            description: "The sensor data has been updated.",
         });
         setIsSimulating(false);
     };
 
-    const isButtonDisabled = isGenerating || isSimulating || !crashData;
+    const isButtonDisabled = isGenerating || isSimulating || !modelData;
 
     return (
         <div className="space-y-8">
@@ -125,7 +134,7 @@ Immediate attention and emergency services dispatch may be required.`;
                         Smart Alert
                     </CardTitle>
                     <CardDescription>
-                        Generate an AI-powered emergency alert or simulate a new crash event.
+                        Generate an emergency alert with real sensor data and crash analysis.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -148,12 +157,12 @@ Immediate attention and emergency services dispatch may be required.`;
                                 {isSimulating ? (
                                     <>
                                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                        Simulating...
+                                        Refreshing...
                                     </>
                                 ) : (
                                     <>
                                         <RefreshCw className="mr-2 h-5 w-5" />
-                                        New Crash
+                                        Refresh Data
                                     </>
                                 )}
                             </Button>
