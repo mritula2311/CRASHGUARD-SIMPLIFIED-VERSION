@@ -12,11 +12,11 @@
 3. Copy the generated 16-character password
 
 ### 3. Update Credentials
-Edit `oauth_credentials.json` with your details:
+Edit `oauth_credentials.json` with crashguard123@gmail.com details:
 
 ```json
 {
-  "email": "your-email@gmail.com",
+  "email": "crashguard123@gmail.com",
   "app_password": "your-16-char-app-password"
 }
 ```

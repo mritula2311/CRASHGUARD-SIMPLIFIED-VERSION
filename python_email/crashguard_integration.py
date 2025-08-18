@@ -28,7 +28,7 @@ class CrashGuardEmail:
         except FileNotFoundError:
             print(f"OAuth credentials file not found at {creds_path}. Using default settings.", file=sys.stderr)
             self.credentials = {
-                "email": "crashguard1234@gmail.com",
+                "email": "crashguard123@gmail.com",
                 "app_password": "your_gmail_app_password_here"
             }
     
@@ -40,7 +40,7 @@ class CrashGuardEmail:
             self.smtp_server.starttls()  # Enable TLS encryption
             
             # Login with app password
-            email = self.credentials.get('email', 'crashguard1234@gmail.com')
+            email = self.credentials.get('email', 'crashguard123@gmail.com')
             app_password = self.credentials.get('app_password', '')
             
             if not app_password or app_password == 'your_app_password_here':
@@ -60,7 +60,7 @@ class CrashGuardEmail:
         try:
             # Create message
             msg = MIMEMultipart()
-            msg['From'] = self.credentials.get('email', 'crashguard1234@gmail.com')
+            msg['From'] = self.credentials.get('email', 'crashguard123@gmail.com')
             msg['To'] = mail
             msg['Subject'] = f"🚨 EMERGENCY CRASH ALERT - {vcd_reference_code}"
             
@@ -113,7 +113,7 @@ def send_crash_alert_from_nodejs(crash_data_json):
         if not email_system.email_conn():
             # If connection fails, return simulation success
             print("PYTHON EMAIL SIMULATION:", file=sys.stderr)
-            print(f"   FROM: crashguard1234@gmail.com", file=sys.stderr)
+            print(f"   FROM: crashguard123@gmail.com", file=sys.stderr)
             print(f"   TO: {recipient}", file=sys.stderr)
             print(f"   SUBJECT: Emergency Crash Alert - {severity}", file=sys.stderr)
             print(f"   LOCATION: {location}", file=sys.stderr)

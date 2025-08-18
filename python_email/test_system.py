@@ -9,6 +9,7 @@ from crashguard_integration import send_crash_alert_from_nodejs
 def test_email():
     """Test the email system with sample data"""
     print("Testing CrashGuard Email System...")
+    print("Using: crashguard123@gmail.com")
     
     # Sample crash data
     test_data = {
