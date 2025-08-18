@@ -7,8 +7,80 @@ This script can be called from Node.js to send actual emails
 import sys
 import json
 import os
-from test_email import CrashGuardEmail
+import smtplib
+import ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import datetime
+
+
+class CrashGuardEmail:
+    def __init__(self):
+        self.smtp_server = None
+        # Load credentials from oauth_credentials.json with proper path handling
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        creds_path = os.path.join(script_dir, 'oauth_credentials.json')
+        
+        try:
+            with open(creds_path, 'r') as f:
+                self.credentials = json.load(f)
+            print(f"Loaded credentials from {creds_path}", file=sys.stderr)
+        except FileNotFoundError:
+            print(f"OAuth credentials file not found at {creds_path}. Using default settings.", file=sys.stderr)
+            self.credentials = {
+                "email": "crashguard1234@gmail.com",
+                "app_password": "your_gmail_app_password_here"
+            }
+    
+    def email_conn(self):
+        """Establish SMTP connection to Gmail"""
+        try:
+            # Create SMTP connection
+            self.smtp_server = smtplib.SMTP('smtp.gmail.com', 587)
+            self.smtp_server.starttls()  # Enable TLS encryption
+            
+            # Login with app password
+            email = self.credentials.get('email', 'crashguard1234@gmail.com')
+            app_password = self.credentials.get('app_password', '')
+            
+            if not app_password or app_password == 'your_app_password_here':
+                print("Gmail App Password not configured in oauth_credentials.json", file=sys.stderr)
+                return False
+                
+            self.smtp_server.login(email, app_password)
+            print("SMTP Email connection established successfully", file=sys.stderr)
+            return True
+            
+        except Exception as e:
+            print(f"SMTP connection failed: {e}", file=sys.stderr)
+            return False
+    
+    def send_email(self, send_message, location, mail, vcd_reference_code):
+        """Send email using SMTP"""
+        try:
+            # Create message
+            msg = MIMEMultipart()
+            msg['From'] = self.credentials.get('email', 'crashguard1234@gmail.com')
+            msg['To'] = mail
+            msg['Subject'] = f"🚨 EMERGENCY CRASH ALERT - {vcd_reference_code}"
+            
+            # Add body to email
+            msg.attach(MIMEText(send_message, 'plain'))
+            
+            # Send email
+            self.smtp_server.send_message(msg)
+            print(f"Email Alert Successfully Sent to {mail}", file=sys.stderr)
+            return True
+            
+        except Exception as e:
+            print(f"Email sending failed: {e}", file=sys.stderr)
+            return False
+    
+    def quit_conn(self):
+        """Close SMTP connection"""
+        if self.smtp_server:
+            self.smtp_server.quit()
+            print("Email connection closed", file=sys.stderr)
 
 
 def send_crash_alert_from_nodejs(crash_data_json):
@@ -35,19 +107,19 @@ def send_crash_alert_from_nodejs(crash_data_json):
         timestamp = crash_data.get('timestamp', datetime.datetime.now().isoformat())
         
         # Create email system
-        email_system = CrashGuardEmail(source=0)
+        email_system = CrashGuardEmail()
         
         # Connect to email server
         if not email_system.email_conn():
             # If connection fails, return simulation success
-            print("PYTHON EMAIL SIMULATION:")
-            print(f"   FROM: crashguard1234@gmail.com")
-            print(f"   TO: {recipient}")
-            print(f"   SUBJECT: Emergency Crash Alert - {severity}")
-            print(f"   LOCATION: {location}")
-            print(f"   SPEED: {speed} km/h")
-            print(f"   TIME: {timestamp}")
-            print("   STATUS: Simulated (authentication failed)")
+            print("PYTHON EMAIL SIMULATION:", file=sys.stderr)
+            print(f"   FROM: crashguard1234@gmail.com", file=sys.stderr)
+            print(f"   TO: {recipient}", file=sys.stderr)
+            print(f"   SUBJECT: Emergency Crash Alert - {severity}", file=sys.stderr)
+            print(f"   LOCATION: {location}", file=sys.stderr)
+            print(f"   SPEED: {speed} km/h", file=sys.stderr)
+            print(f"   TIME: {timestamp}", file=sys.stderr)
+            print("   STATUS: Simulated (authentication failed)", file=sys.stderr)
             
             return {
                 "success": True, 
