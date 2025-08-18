@@ -1,0 +1,42 @@
+{
+  "channels": {
+    "acceleration": {
+      "channel_id": "3038363",
+      "read_api_key": "IA0E7SDTB5BAJUOA"
+    },
+    "gyroscope": {
+      "channel_id": "3038370", 
+      "read_api_key": "T2YUDWXNFJHCI9GA"
+    },
+    "vibration": {
+      "channel_id": "3038377",
+      "read_api_key": "TXAX7BDDIV8LX8XP"
+    }
+  },
+  "sequence_length": 10,
+  "update_interval": 5,
+  "dashboard_output_file": "src/data/live_sensor_data.json",
+  "enable_email_alerts": true,
+  "field_mappings": {
+    "acceleration": {
+      "field1": "ax",
+      "field2": "ay",
+      "field3": "az",
+      "field4": "a_magnitude"
+    },
+    "gyroscope": {
+      "field1": "gx",
+      "field2": "gy", 
+      "field3": "gz",
+      "field4": "g_magnitude"
+    },
+    "vibration": {
+      "field1": "front_left",
+      "field2": "front_right",
+      "field3": "mid_left",
+      "field4": "mid_right",
+      "field5": "rear_left",
+      "field6": "rear_right"
+    }
+  }
+}

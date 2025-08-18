@@ -1,0 +1,24 @@
+# CrashGuard System Requirements
+# Core dependencies for the vehicle crash detection system
+
+# Data Processing and Machine Learning
+requests>=2.31.0          # HTTP requests for ThingSpeak API
+numpy>=1.24.0             # Numerical computations for DRQN
+python-dateutil>=2.8.0    # Date and time utilities
+
+# Email Integration
+smtplib                   # SMTP email sending (built-in)
+email                     # Email message formatting (built-in)
+ssl                       # SSL/TLS support (built-in)
+
+# System Utilities
+json                      # JSON data handling (built-in)
+logging                   # Professional logging (built-in)
+collections               # Data structures (built-in)
+datetime                  # Date/time operations (built-in)
+typing                    # Type hints (built-in)
+pickle                    # Model serialization (built-in)
+os                        # Operating system interface (built-in)
+sys                       # System-specific parameters (built-in)
+time                      # Time-related functions (built-in)
+math                      # Mathematical functions (built-in)

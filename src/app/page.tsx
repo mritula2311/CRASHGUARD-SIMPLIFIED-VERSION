@@ -1,8 +1,8 @@
 import { ReinforcementModelPanel } from '@/components/reinforcement-model-panel';
-import { GPSLocation } from '@/components/gps-location';
 import { EmergencyContactSmall } from '@/components/emergency-contacts-compact';
 import { EmailNotifications } from '@/components/email-notifications';
-import { Shield, Brain, Activity, MapPin, Users, Mail, AlertTriangle } from 'lucide-react';
+import { ThingSpeakSensorData } from '@/components/thingspeak-sensor-data';
+import { Shield, Brain, Activity, Users, Mail, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { testPythonEmail } from './actions';
@@ -55,7 +55,7 @@ export default function Home() {
               AI-Powered Vehicle Safety Dashboard
             </h2>
             <p className="text-muted-foreground">
-              Real-time crash detection with GPS tracking and emergency response system
+              Real-time crash detection with intelligent emergency response system
             </p>
           </div>
 
@@ -67,16 +67,15 @@ export default function Home() {
             </AlertDescription>
           </Alert>
 
-          {/* Top Priority Row: AI Model and GPS Map */}
+          {/* Top Priority Row: AI Model and Emergency Contacts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* AI Model Panel */}
             <div className="lg:col-span-1">
               <ReinforcementModelPanel />
             </div>
 
-            {/* GPS Location Map with Emergency Contact and System Status Below */}
+            {/* Emergency Contact and System Status */}
             <div className="lg:col-span-1 space-y-4">
-              <GPSLocation />
               <EmergencyContactSmall />
               <Card className="h-fit">
                 <CardHeader className="pb-2">
@@ -97,8 +96,8 @@ export default function Home() {
                     
                     <div className="flex items-center justify-between p-2 bg-green-50 rounded dark:bg-green-950">
                       <div className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3 text-green-500" />
-                        <span className="text-xs font-medium">GPS</span>
+                        <Brain className="h-3 w-3 text-green-500" />
+                        <span className="text-xs font-medium">Sensors</span>
                       </div>
                       <span className="text-xs text-green-700 dark:text-green-300 font-medium">ACTIVE</span>
                     </div>
@@ -124,35 +123,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Info Section */}
-          <Card className="bg-muted/30">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Brain className="h-5 w-5 text-primary" />
-                System Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                <div>
-                  <p><strong>Model:</strong> Deep Recurrent Q-Network (DRQN) v0.1</p>
-                  <p><strong>Sensors:</strong> 6 Vibration, Accelerometer, Tilt</p>
-                </div>
-                <div>
-                  <p><strong>GPS Accuracy:</strong> ±2-12 meters</p>
-                  <p><strong>Data Source:</strong> Real sensor readings from RENIFORCEMENT-MODEL/sensor.json</p>
-                </div>
-                <div>
-                  <p><strong>Emergency Actions:</strong> WAIT, LOG_MINOR, ALERT_NEARBY, EMERGENCY_DISPATCH</p>
-                  <p><strong>Alert System:</strong> Automatic email notification to your personal email</p>
-                </div>
-                <div>
-                  <p><strong>Model Version:</strong> DRQN v0.1</p>
-                  <p><strong>Status:</strong> Real-time monitoring active</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Live Sensor Data from ThingSpeak */}
+          <ThingSpeakSensorData />
         </div>
       </main>
 

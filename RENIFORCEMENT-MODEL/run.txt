@@ -1,3 +1,0 @@
-Remove-Item data\frames.ndjson -ErrorAction SilentlyContinue
-python run_realtime.py --file sensor.json --model drqn.pt --interval 0.10 --exit-after-eof --verbose
-python analyze_logs.py

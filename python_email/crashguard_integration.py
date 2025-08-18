@@ -1,7 +1,21 @@
 #!/usr/bin/env python3
 """
-CrashGuard Integration Script
-This script can be called from Node.js to send actual emails
+CrashGuard Email Integration Module
+
+This module provides email notification services for the CrashGuard system.
+It integrates with Gmail SMTP to send crash alert notifications to emergency
+contacts and stakeholders.
+
+Features:
+- Gmail SMTP integration
+- Professional email templates
+- Error handling and logging
+- JSON-based configuration
+- Multi-recipient support
+
+Author: CrashGuard Team
+Version: 2.0
+License: MIT
 """
 
 import sys
@@ -12,11 +26,25 @@ import ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import datetime
-
+from typing import Dict, Any, List, Optional
 
 class CrashGuardEmail:
+    """
+    CrashGuard Email Service Class
+    
+    Handles all email functionality including SMTP connection,
+    message formatting, and delivery confirmation.
+    """
+    
     def __init__(self):
+        """
+        Initialize the CrashGuard email service.
+        
+        Loads credentials from oauth_credentials.json and sets up
+        SMTP configuration for Gmail integration.
+        """
         self.smtp_server = None
+        
         # Load credentials from oauth_credentials.json with proper path handling
         script_dir = os.path.dirname(os.path.abspath(__file__))
         creds_path = os.path.join(script_dir, 'oauth_credentials.json')
@@ -24,9 +52,9 @@ class CrashGuardEmail:
         try:
             with open(creds_path, 'r') as f:
                 self.credentials = json.load(f)
-            print(f"Loaded credentials from {creds_path}", file=sys.stderr)
+            print(f"INFO: Loaded credentials from {creds_path}", file=sys.stderr)
         except FileNotFoundError:
-            print(f"OAuth credentials file not found at {creds_path}. Using default settings.", file=sys.stderr)
+            print(f"WARNING: OAuth credentials file not found at {creds_path}. Using default settings.", file=sys.stderr)
             self.credentials = {
                 "email": "crashguard1234@gmail.com",
                 "app_password": "your_gmail_app_password_here"

@@ -1,0 +1,75 @@
+{
+  "timestamp": "2025-08-18T19:12:11.223370",
+  "data_source": "thingspeak_live_advanced_drqn",
+  "acceleration": {
+    "x": -9.19613,
+    "y": -1.74777,
+    "z": 1.41018,
+    "magnitude": 9.466,
+    "timestamp": "2025-08-18T12:30:22Z"
+  },
+  "gyroscope": {
+    "x": -0.05156,
+    "y": 0.02665,
+    "z": -0.01039,
+    "magnitude": 0.059,
+    "timestamp": "2025-08-18T12:30:56Z"
+  },
+  "vibration": {
+    "front_left": 0,
+    "front_right": 0,
+    "mid_left": 0,
+    "mid_right": 0,
+    "rear_left": 0,
+    "rear_right": 0,
+    "total_active": 0,
+    "timestamp": "2025-08-18T12:30:44Z"
+  },
+  "risk_assessment": {
+    "acceleration_level": "medium",
+    "gyroscope_level": "normal",
+    "vibration_level": "normal",
+    "overall_risk": "medium"
+  },
+  "model_prediction": {
+    "risk_level": "alert",
+    "confidence": 0.2802475910624339,
+    "recommended_action": "prepare_alerts",
+    "crash_probability": 0.5161465493831705,
+    "model_version": "AdvancedDRQN_v1.0_learning",
+    "timestamp": "2025-08-18T19:12:11.222202",
+    "q_values": [
+      -0.14169905469335994,
+      0.17778834754926848,
+      0.09597957057825406,
+      0.09473691605115016
+    ],
+    "action_probabilities": [
+      0.2036058595543956,
+      0.2802475910624339,
+      0.25823362263251126,
+      0.2579129267506592
+    ],
+    "reasoning": "DRQN Learning Mode - Alert state: Elevated risk patterns identified (reward: -3.0) | Q-max: 0.178, Exploration: 0.956",
+    "sequence_length": 9,
+    "epsilon": 0.9558895783575597,
+    "step_count": 9,
+    "reward": -3.0,
+    "learning_active": true
+  },
+  "learning_stats": {
+    "step_count": 9,
+    "training_count": 0,
+    "epsilon": 0.9558895783575597,
+    "experience_buffer_size": 0,
+    "sequence_buffer_size": 9
+  },
+  "live_status": {
+    "connected": true,
+    "last_update": "2025-08-18T19:12:11.223370",
+    "channels_active": 3,
+    "data_quality": "excellent",
+    "mode": "advanced_drqn_learning",
+    "ai_version": "Advanced DRQN v1.0"
+  }
+}
