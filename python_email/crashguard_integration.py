@@ -10,7 +10,7 @@ Features:
 - Gmail SMTP integration
 - Professional email templates
 - Error handling and logging
-- JSON-based configuration
+- Environment variable-based configuration
 - Multi-recipient support
 
 Author: CrashGuard Team
@@ -40,24 +40,39 @@ class CrashGuardEmail:
         """
         Initialize the CrashGuard email service.
         
-        Loads credentials from oauth_credentials.json and sets up
-        SMTP configuration for Gmail integration.
+        Loads credentials from environment variables (preferred) or an optional
+        local oauth_credentials.json file and sets up SMTP configuration.
         """
         self.smtp_server = None
         
-        # Load credentials from oauth_credentials.json with proper path handling
+        # Resolve optional local credentials file path
         script_dir = os.path.dirname(os.path.abspath(__file__))
         creds_path = os.path.join(script_dir, 'oauth_credentials.json')
+
+        # Preferred source: environment variables
+        env_email = os.getenv('CRASHGUARD_SMTP_EMAIL')
+        env_app_password = os.getenv('CRASHGUARD_SMTP_APP_PASSWORD')
+        if env_email and env_app_password:
+            self.credentials = {
+                "email": env_email,
+                "app_password": env_app_password
+            }
+            print("INFO: Loaded SMTP credentials from environment variables", file=sys.stderr)
+            return
         
         try:
             with open(creds_path, 'r') as f:
                 self.credentials = json.load(f)
-            print(f"INFO: Loaded credentials from {creds_path}", file=sys.stderr)
+            print(f"INFO: Loaded SMTP credentials from local file {creds_path}", file=sys.stderr)
         except FileNotFoundError:
-            print(f"WARNING: OAuth credentials file not found at {creds_path}. Using default settings.", file=sys.stderr)
+            print(
+                f"WARNING: No SMTP credentials found. Set CRASHGUARD_SMTP_EMAIL and "
+                f"CRASHGUARD_SMTP_APP_PASSWORD or provide local file at {creds_path}.",
+                file=sys.stderr
+            )
             self.credentials = {
-                "email": "crashguard1234@gmail.com",
-                "app_password": "your_gmail_app_password_here"
+                "email": "no-reply@example.com",
+                "app_password": "your_smtp_app_password_here"
             }
     
     def email_conn(self):
@@ -68,11 +83,19 @@ class CrashGuardEmail:
             self.smtp_server.starttls()  # Enable TLS encryption
             
             # Login with app password
-            email = self.credentials.get('email', 'crashguard1234@gmail.com')
+            email = self.credentials.get('email', 'no-reply@example.com')
             app_password = self.credentials.get('app_password', '')
             
-            if not app_password or app_password == 'your_app_password_here':
-                print("Gmail App Password not configured in oauth_credentials.json", file=sys.stderr)
+            if not app_password or app_password in {
+                'your_app_password_here',
+                'your_gmail_app_password_here',
+                'your_smtp_app_password_here'
+            }:
+                print(
+                    "Gmail App Password not configured. Set CRASHGUARD_SMTP_APP_PASSWORD "
+                    "or provide a local oauth_credentials.json file.",
+                    file=sys.stderr
+                )
                 return False
                 
             self.smtp_server.login(email, app_password)
@@ -88,7 +111,7 @@ class CrashGuardEmail:
         try:
             # Create message
             msg = MIMEMultipart()
-            msg['From'] = self.credentials.get('email', 'crashguard1234@gmail.com')
+            msg['From'] = self.credentials.get('email', 'no-reply@example.com')
             msg['To'] = mail
             msg['Subject'] = f"URGENT: Vehicle Crash Notification - {vcd_reference_code}"
             
@@ -151,7 +174,7 @@ def send_crash_alert_from_nodejs(crash_data_json):
         if not email_system.email_conn():
             # If connection fails, return simulation success
             print("PYTHON EMAIL SIMULATION:", file=sys.stderr)
-            print(f"   FROM: crashguard1234@gmail.com", file=sys.stderr)
+            print(f"   FROM: {email_system.credentials.get('email', 'no-reply@example.com')}", file=sys.stderr)
             print(f"   TO: {recipient}", file=sys.stderr)
             print(f"   SUBJECT: Emergency Crash Alert - {severity}", file=sys.stderr)
             print(f"   LOCATION: {location}", file=sys.stderr)
