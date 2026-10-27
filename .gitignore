@@ -66,3 +66,6 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+# Local SMTP credentials (must never be committed)
+/python_email/oauth_credentials.json
